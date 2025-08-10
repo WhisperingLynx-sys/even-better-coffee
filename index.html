@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <!-- GSAP CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <!-- Digital Font (from microwaves) -->
+  <!-- Digital Font (Orbitron) -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -16,39 +16,67 @@
   <!-- Background -->
   <div class="background"></div>
 
-  <!-- Coffee Machine (SVG Sprite) -->
-  <div class="coffee-machine" id="coffeeMachine">
-    <!-- SVG Machine -->
-    <svg viewBox="0 0 300 500" class="machine-svg">
-      <!-- Body -->
-      <rect x="20" y="60" width="260" height="380" rx="20" fill="#2c1810" />
-      <!-- Front Panel -->
-      <rect x="40" y="90" width="220" height="300" rx="15" fill="#3a271b" />
-      <!-- Control Panel -->
-      <rect x="60" y="120" width="180" height="240" rx="10" fill="#4a3525" />
+  <!-- Coffee Machine (Highly Detailed SVG) -->
+  <div class="coffee-machine">
+    <svg viewBox="0 0 400 650" class="machine-svg">
+      <!-- Main Body -->
+      <rect x="20" y="20" width="360" height="610" rx="25" fill="#1f1f1f" stroke="#333" stroke-width="2"/>
+      
+      <!-- Top Section -->
+      <rect x="30" y="30" width="340" height="60" rx="15" fill="#2c2c2c" />
+      <rect x="35" y="35" width="330" height="50" rx="10" fill="#222" />
+      <rect x="170" y="20" width="60" height="20" fill="#222" rx="5"/> <!-- Top lid area -->
 
-      <!-- Display Screen -->
-      <rect x="70" y="130" width="160" height="30" rx="5" fill="#1e1a17" />
-      <text x="150" y="150" text-anchor="middle" fill="#00ffcc" font-family="Orbitron, monospace" font-size="14" font-weight="700" id="displayText">ESPRESSO</text>
+      <!-- Left Side Bar / Component (mimicking the wand) -->
+      <rect x="40" y="100" width="15" height="400" rx="7" fill="#3a3a3a"/>
+      <circle cx="47.5" cy="95" r="10" fill="#555"/>
+      <rect x="42" y="350" width="10" height="120" rx="5" fill="#555" />
+      <circle cx="47.5" cy="480" r="12" fill="#777"/>
 
-      <!-- Buttons (part of machine) -->
-      <circle cx="100" cy="250" r="15" fill="#d4a477" />
-      <circle cx="200" cy="250" r="15" fill="#d4a477" />
-      <circle cx="150" cy="350" r="15" fill="#d4a477" />
+      <!-- Central Dispenser Area -->
+      <rect x="120" y="350" width="160" height="150" fill="#2a2a2a" rx="15"/>
+      <rect x="140" y="370" width="120" height="80" fill="#111" rx="10"/>
+      <path d="M150,450 C150,470 250,470 250,450 L250,400 L150,400 Z" fill="#3a3a3a"/> <!-- Dispenser cone shape -->
+      <circle cx="200" cy="460" r="20" fill="#111"/> <!-- Nozzle opening -->
 
-      <!-- Arrows -->
-      <path d="M120,250 L110,240 L110,260 Z" fill="#fff" />
-      <path d="M180,250 L190,240 L190,260 Z" fill="#fff" />
+      <!-- Touchscreen Display (Foreign Object for HTML content) -->
+      <foreignObject x="70" y="100" width="260" height="240" class="screen-fo">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="screen" id="screen">
+          <div class="ai-chat" id="aiChat">Please enter your name, my love.</div>
+          <input type="text" class="internal-name-input" id="internalNameInput" placeholder="Her Name">
+          <div class="name-display" id="nameDisplay"></div>
 
-      <!-- Cup holder -->
-      <rect x="110" y="420" width="80" height="40" rx="8" fill="#554535" />
+          <div class="coffee-grid" id="coffeeGrid"></div>
+          
+          <div class="size-options" id="sizeOptions">
+            <div class="size-btn" data-size="small">S</div>
+            <div class="size-btn" data-size="medium">M</div>
+            <div class="size-btn" data-size="large">L</div>
+            <div class="size-btn" data-size="jumbo">XL</div>
+          </div>
 
-      <!-- Steam vent -->
-      <ellipse cx="150" cy="80" rx="10" ry="5" fill="#ccc" />
+          <div class="temp-options" id="tempOptions">
+            <div class="temp-btn" data-temp="hot">🔥 Hot</div>
+            <div class="temp-btn" data-temp="cold">🧊 Cold</div>
+          </div>
+
+          <button class="brew-button" id="brewButton">Start Brew</button>
+          <div class="timer" id="timer">10</div>
+        </div>
+      </foreignObject>
+
+      <!-- Drip Tray -->
+      <rect x="30" y="520" width="340" height="100" rx="20" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+      <rect x="40" y="530" width="320" height="80" rx="15" fill="#111"/>
+      <g stroke="#444" stroke-width="2" stroke-linecap="round">
+        <path d="M50,540 L50,590 M70,540 L70,590 M90,540 L90,590 M110,540 L110,590 M130,540 L130,590 M150,540 L150,590 M170,540 L170,590 M190,540 L190,590 M210,540 L210,590 M230,540 L230,590 M250,540 L250,590 M270,540 L270,590 M290,540 L290,590 M310,540 L310,590 M330,540 L330,590 M350,540 L350,590" />
+      </g>
     </svg>
 
     <!-- Cup -->
-    <div class="cup" id="cup"></div>
+    <div class="cup" id="cup">
+      <div class="cup-label" id="cupLabel"></div>
+    </div>
     
     <!-- Canvas for realistic coffee pour -->
     <canvas id="pourCanvas" width="80" height="120"></canvas>
@@ -59,12 +87,6 @@
     <!-- Ice cubes -->
     <div class="ice-cube" id="iceCube"></div>
 
-    <!-- Name Tag -->
-    <div class="name-tag" id="nameTag">My Love</div>
-
-    <!-- Timer -->
-    <div class="timer" id="timer">10</div>
-
     <!-- Blush Effect -->
     <div class="blush" id="blush"></div>
 
@@ -73,8 +95,8 @@
       Thank you for your payment... I’m blushing! ❤️
     </div>
 
-    <!-- Kiss Button (pointer becomes 💋) -->
-    <div class="kiss-button" id="kissButton">💋</div>
+    <!-- Kiss Hotspot (entire machine area for custom cursor) -->
+    <div class="kiss-hotspot" id="kissHotspot"></div>
   </div>
 
   <!-- Love Meter -->
@@ -82,15 +104,15 @@
     <div class="love-fill" id="loveFill"></div>
   </div>
 
-  <!-- Name Input -->
-  <input type="text" class="input-name" id="nameInput" placeholder="Enter her name..." value="My Love">
-
 </div>
 
 <!-- Audio Files -->
 <audio id="brewSound" src="https://www.soundjay.com/other/sounds/coffee-machine-brewing-1.mp3" preload="auto"></audio>
 <audio id="steamSound" src="https://www.soundjay.com/other/sounds/steam-hiss-1.mp3" preload="auto"></audio>
 <audio id="clinkSound" src="https://www.soundjay.com/other/sounds/cup-clink-1.mp3" preload="auto"></audio>
+<audio id="pourSound" src="https://www.soundjay.com/other/sounds/water-pour-1.mp3" preload="auto"></audio>
+<audio id="iceDropSound" src="https://www.soundjay.com/misc/sounds/ice-cubes-01.mp3" preload="auto"></audio>
+
 
 <script src="script.js"></script>
 </body>
