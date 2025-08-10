@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Coffee AI</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Digital Font (from microwaves) -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+  <!-- Background -->
+  <div class="background"></div>
+
+  <!-- Coffee Machine (SVG Sprite) -->
+  <div class="coffee-machine" id="coffeeMachine">
+    <!-- SVG Machine -->
+    <svg viewBox="0 0 300 500" class="machine-svg">
+      <!-- Body -->
+      <rect x="20" y="60" width="260" height="380" rx="20" fill="#2c1810" />
+      <!-- Front Panel -->
+      <rect x="40" y="90" width="220" height="300" rx="15" fill="#3a271b" />
+      <!-- Control Panel -->
+      <rect x="60" y="120" width="180" height="240" rx="10" fill="#4a3525" />
+
+      <!-- Display Screen -->
+      <rect x="70" y="130" width="160" height="30" rx="5" fill="#1e1a17" />
+      <text x="150" y="150" text-anchor="middle" fill="#00ffcc" font-family="Orbitron, monospace" font-size="14" font-weight="700" id="displayText">ESPRESSO</text>
+
+      <!-- Buttons (part of machine) -->
+      <circle cx="100" cy="250" r="15" fill="#d4a477" />
+      <circle cx="200" cy="250" r="15" fill="#d4a477" />
+      <circle cx="150" cy="350" r="15" fill="#d4a477" />
+
+      <!-- Arrows -->
+      <path d="M120,250 L110,240 L110,260 Z" fill="#fff" />
+      <path d="M180,250 L190,240 L190,260 Z" fill="#fff" />
+
+      <!-- Cup holder -->
+      <rect x="110" y="420" width="80" height="40" rx="8" fill="#554535" />
+
+      <!-- Steam vent -->
+      <ellipse cx="150" cy="80" rx="10" ry="5" fill="#ccc" />
+    </svg>
+
+    <!-- Cup -->
+    <div class="cup" id="cup"></div>
+    
+    <!-- Canvas for realistic coffee pour -->
+    <canvas id="pourCanvas" width="80" height="120"></canvas>
+    
+    <!-- Steam particles -->
+    <div class="steam-particles" id="steamParticles"></div>
+    
+    <!-- Ice cubes -->
+    <div class="ice-cube" id="iceCube"></div>
+
+    <!-- Name Tag -->
+    <div class="name-tag" id="nameTag">My Love</div>
+
+    <!-- Timer -->
+    <div class="timer" id="timer">10</div>
+
+    <!-- Blush Effect -->
+    <div class="blush" id="blush"></div>
+
+    <!-- Thank You Message -->
+    <div class="thank-you" id="thankYou">
+      Thank you for your payment... I’m blushing! ❤️
+    </div>
+
+    <!-- Kiss Button (pointer becomes 💋) -->
+    <div class="kiss-button" id="kissButton">💋</div>
+  </div>
+
+  <!-- Love Meter -->
+  <div class="love-meter">
+    <div class="love-fill" id="loveFill"></div>
+  </div>
+
+  <!-- Name Input -->
+  <input type="text" class="input-name" id="nameInput" placeholder="Enter her name..." value="My Love">
+
+</div>
+
+<!-- Audio Files -->
+<audio id="brewSound" src="https://www.soundjay.com/other/sounds/coffee-machine-brewing-1.mp3" preload="auto"></audio>
+<audio id="steamSound" src="https://www.soundjay.com/other/sounds/steam-hiss-1.mp3" preload="auto"></audio>
+<audio id="clinkSound" src="https://www.soundjay.com/other/sounds/cup-clink-1.mp3" preload="auto"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
