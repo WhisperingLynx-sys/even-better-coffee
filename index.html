@@ -42,26 +42,17 @@
       <!-- Touchscreen Display (Foreign Object for HTML content) -->
       <foreignObject x="70" y="100" width="260" height="240" class="screen-fo">
         <div xmlns="http://www.w3.org/1999/xhtml" class="screen" id="screen">
-          <div class="ai-chat" id="aiChat">Please enter your name, my love.</div>
+          <div class="ai-chat" id="aiChat"></div>
           <input type="text" class="internal-name-input" id="internalNameInput" placeholder="Her Name">
-          <div class="name-display" id="nameDisplay"></div>
 
           <div class="coffee-grid" id="coffeeGrid"></div>
           
-          <div class="size-options" id="sizeOptions">
-            <div class="size-btn" data-size="small">S</div>
-            <div class="size-btn" data-size="medium">M</div>
-            <div class="size-btn" data-size="large">L</div>
-            <div class="size-btn" data-size="jumbo">XL</div>
-          </div>
+          <div class="size-options" id="sizeOptions"></div>
 
-          <div class="temp-options" id="tempOptions">
-            <div class="temp-btn" data-temp="hot">🔥 Hot</div>
-            <div class="temp-btn" data-temp="cold">🧊 Cold</div>
-          </div>
+          <div class="temp-options" id="tempOptions"></div>
 
           <button class="brew-button" id="brewButton">Start Brew</button>
-          <div class="timer" id="timer">10</div>
+          <div class="timer" id="timer"></div>
         </div>
       </foreignObject>
 
@@ -110,8 +101,9 @@
 <audio id="brewSound" src="https://www.soundjay.com/other/sounds/coffee-machine-brewing-1.mp3" preload="auto"></audio>
 <audio id="steamSound" src="https://www.soundjay.com/other/sounds/steam-hiss-1.mp3" preload="auto"></audio>
 <audio id="clinkSound" src="https://www.soundjay.com/other/sounds/cup-clink-1.mp3" preload="auto"></audio>
-<audio id="pourSound" src="https://www.soundjay.com/other/sounds/water-pour-1.mp3" preload="auto"></audio>
+<audio id="pourSound" src="https://www.soundjay.com/misc/sounds/water-pour-1.mp3" preload="auto"></audio>
 <audio id="iceDropSound" src="https://www.soundjay.com/misc/sounds/ice-cubes-01.mp3" preload="auto"></audio>
+<audio id="selectSound" src="https://www.soundjay.com/buttons/button-10.mp3" preload="auto"></audio>
 
 
 <script src="script.js"></script>

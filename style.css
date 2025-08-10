@@ -38,8 +38,8 @@ body.kiss-cursor {
   overflow: hidden;
   border: 10px solid #8b5a2b;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center; /* Center machine horizontally */
+  align-items: flex-start; /* Align machine to top */
   padding-top: 20px;
 }
 
@@ -93,21 +93,49 @@ body.kiss-cursor {
 
 .ai-chat {
   position: absolute; /* positioned relative to .screen */
-  top: 15%;
-  width: 80%;
+  top: 15px; /* Consistent position at the top */
+  width: 90%;
   text-align: center;
   font-size: 16px;
   color: #00ffcc;
   font-family: 'Orbitron', monospace;
   text-shadow: 0 0 5px rgba(0,255,204,0.5);
-  opacity: 1; /* Default to visible */
+  opacity: 1;
   transition: opacity 0.5s ease;
   z-index: 10;
+  white-space: pre-wrap; /* Allows text to wrap */
+  min-height: 40px; /* Prevent jump when text changes */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Typewriter specific styles for ai-chat */
+  overflow: hidden; /* Ensure text is hidden until typed */
+  border-right: .15em solid #00ffcc; /* Blinking cursor */
 }
+
+.ai-chat.typing {
+  animation: typing 2s steps(40, end) forwards, blink-caret .75s step-end infinite;
+  white-space: nowrap; /* Keep text on one line during typing */
+}
+.ai-chat:not(.typing) {
+  border-right: none; /* Hide cursor when not typing */
+}
+
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #00ffcc }
+}
+
 
 .internal-name-input {
   position: absolute;
-  top: 45%;
+  top: 100px; /* Positioned below ai-chat */
   padding: 8px 12px;
   border: 2px solid #00ffcc;
   border-radius: 8px;
@@ -123,32 +151,6 @@ body.kiss-cursor {
   z-index: 10;
 }
 
-.name-display {
-  position: absolute;
-  top: 45%;
-  font-size: 24px;
-  color: #00ffcc;
-  font-family: 'Orbitron', monospace;
-  text-shadow: 0 0 8px rgba(0,255,204,0.8);
-  opacity: 0; /* Hidden initially */
-  z-index: 10;
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 2px solid #00ffcc; /* Blinking cursor for typewriter */
-  animation: typing 3s steps(40, end) forwards, blink-caret .75s step-end infinite;
-  display: none; /* Hide until needed */
-}
-
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
-}
-
-@keyframes blink-caret {
-  from, to { border-color: transparent }
-  50% { border-color: #00ffcc }
-}
-
 
 .coffee-grid {
   display: grid;
@@ -157,9 +159,10 @@ body.kiss-cursor {
   width: 95%;
   height: auto;
   position: absolute; /* Positioned relative to .screen */
-  top: 10px; /* Adjusted to fit more content */
+  top: 70px; /* Adjusted to fit more content */
   opacity: 0; /* Hidden initially */
   transition: opacity 0.5s ease;
+  padding: 0 5px; /* Small horizontal padding */
 }
 
 .coffee-option {
@@ -177,6 +180,7 @@ body.kiss-cursor {
   align-items: center;
   justify-content: center;
   font-family: 'Orbitron', monospace;
+  min-height: 60px; /* Ensure consistent height */
 }
 
 .coffee-option:hover {
@@ -198,7 +202,7 @@ body.kiss-cursor {
 /* Size Options */
 .size-options {
   position: absolute;
-  top: 180px; /* Positioned below coffee grid */
+  top: 190px; /* Positioned below coffee grid */
   display: flex;
   gap: 5px;
   opacity: 0;
@@ -215,6 +219,8 @@ body.kiss-cursor {
   cursor: pointer;
   font-family: 'Orbitron', monospace;
   transition: all 0.2s ease;
+  min-width: 30px; /* Ensure uniform width */
+  text-align: center;
 }
 
 .size-btn:hover {
@@ -230,7 +236,7 @@ body.kiss-cursor {
 /* Temperature Options */
 .temp-options {
   position: absolute;
-  top: 215px; /* Positioned below size options */
+  top: 225px; /* Positioned below size options */
   display: flex;
   gap: 8px;
   opacity: 0;
@@ -247,6 +253,8 @@ body.kiss-cursor {
   cursor: pointer;
   font-family: 'Orbitron', monospace;
   transition: all 0.2s ease;
+  min-width: 80px; /* Ensure uniform width */
+  text-align: center;
 }
 
 .temp-btn:hover {
@@ -309,15 +317,15 @@ body.kiss-cursor {
   width: 90px;
   height: 130px;
   background: #fff;
-  border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 20px 20px; /* More rounded bottom */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), inset 0 -5px 15px rgba(0, 0, 0, 0.1);
   opacity: 0;
   z-index: 3;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  perspective: 1000px; /* For 3D rotation of label */
+  position: relative; /* For inner elements */
 }
 
-.cup::before {
+.cup::before { /* Cup Lip/Rim */
   content: '';
   position: absolute;
   top: -5px;
@@ -328,13 +336,28 @@ body.kiss-cursor {
   border-radius: 10px;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
 }
+.cup::after { /* Handle placeholder */
+  content: '';
+  position: absolute;
+  right: -25px; /* Position outside cup */
+  top: 30px;
+  width: 30px;
+  height: 60px;
+  border: 5px solid #d4a477;
+  border-radius: 50%;
+  clip-path: inset(0 0 0 15px); /* Only show half the circle */
+  transform: rotate(20deg); /* Slight angle */
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+  background: transparent;
+}
+
 
 /* Name Label on Cup */
 .cup-label {
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) rotateY(20deg); /* Rotate for 3D effect */
+  transform: translate(-50%, -50%) rotateY(15deg) translateX(-5px); /* Rotate for 3D effect, adjust position */
   color: #333;
   font-family: 'Orbitron', monospace;
   font-size: 14px;
@@ -343,6 +366,8 @@ body.kiss-cursor {
   transition: opacity 0.5s ease;
   text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
   white-space: nowrap;
+  pointer-events: none; /* Make sure it doesn't interfere with clicks */
+  z-index: 4; /* Above cup */
 }
 
 /* Canvas Pour */
@@ -532,6 +557,5 @@ body.kiss-cursor {
   .internal-name-input {
     width: 80%;
     font-size: 14px;
-    margin-top: 10px;
   }
 }

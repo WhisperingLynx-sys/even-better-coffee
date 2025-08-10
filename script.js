@@ -37,8 +37,7 @@ const AI_PHRASES = {
 // === DOM ELEMENTS ===
 const screen = document.getElementById("screen");
 const aiChat = document.getElementById("aiChat");
-const internalNameInput = document.getElementById("internalNameInput"); // New input on screen
-const nameDisplay = document.getElementById("nameDisplay"); // Display for entered name
+const internalNameInput = document.getElementById("internalNameInput");
 const cupLabel = document.getElementById("cupLabel"); // Name on coffee cup
 
 const coffeeGrid = document.getElementById("coffeeGrid");
@@ -72,19 +71,17 @@ function init() {
   populateSizeOptions();
   populateTempOptions();
 
-  updateMachineState("INITIAL_WAIT");
-
   // Event Listeners for new flow
-  internalNameInput.addEventListener("input", handleNameInput);
+  internalNameInput.addEventListener("keydown", handleNameInputKeydown);
   brewButton.addEventListener("click", startBrew);
   kissHotspot.addEventListener("click", handleKiss);
 
-  // Set initial machine passive state
-  gsap.set([coffeeGrid, sizeOptions, tempOptions, brewButton, timerDisplay, nameDisplay, internalNameInput], { opacity: 0, pointerEvents: 'none' });
-  gsap.set([cup, pourCanvas, steamParticles, iceCube, blush, thankYou, cupLabel], { opacity: 0 });
+  // Set initial machine passive state: Hide all dynamic elements
+  gsap.set([internalNameInput, coffeeGrid, sizeOptions, tempOptions, brewButton, timerDisplay, cup, pourCanvas, steamParticles, iceCube, blush, thankYou, cupLabel], { opacity: 0 });
+  internalNameInput.style.pointerEvents = 'none'; // Ensure input is not interactive initially
   
   // Start the machine flow after a brief delay
-  setTimeout(() => updateMachineState("WAITING_NAME"), 1000);
+  setTimeout(() => updateMachineState("WAITING_NAME"), 500);
 }
 
 // === STATE MANAGEMENT ===
@@ -92,86 +89,100 @@ function updateMachineState(newState, data = null) {
   machineState = newState;
   console.log("Machine State:", machineState); // For debugging
 
-  // Reset opacity and pointer events for all interactive screen elements
-  gsap.to([coffeeGrid, sizeOptions, tempOptions, brewButton, timerDisplay, nameDisplay, internalNameInput, aiChat], { opacity: 0, duration: 0.3 });
-  [coffeeGrid, sizeOptions, tempOptions, brewButton, internalNameInput].forEach(el => el.style.pointerEvents = 'none');
+  // Always reset default pointer events and cursor
+  internalNameInput.style.pointerEvents = 'none';
+  coffeeGrid.style.pointerEvents = 'none';
+  sizeOptions.style.pointerEvents = 'none';
+  tempOptions.style.pointerEvents = 'none';
+  brewButton.style.pointerEvents = 'none';
+  kissHotspot.style.pointerEvents = 'none';
+  body.classList.remove('kiss-cursor');
+
+  // Hide most UI elements by default, then show as needed per state
+  gsap.to([internalNameInput, coffeeGrid, sizeOptions, tempOptions, brewButton, timerDisplay], { opacity: 0, duration: 0.3, ease: "power2.out" });
   
-  body.classList.remove('kiss-cursor'); // Remove custom cursor by default
-
-  // Clear previous selections
-  document.querySelectorAll('.coffee-option.selected').forEach(el => el.classList.remove('selected'));
-  document.querySelectorAll('.size-btn.selected').forEach(el => el.classList.remove('selected'));
-  document.querySelectorAll('.temp-btn.selected').forEach(el => el.classList.remove('selected'));
-
+  // Hide typewriter effect and reset content
+  aiChat.classList.remove('typing');
+  aiChat.textContent = "";
 
   switch (machineState) {
-    case "INITIAL_WAIT":
-      aiChat.textContent = ""; // No message initially
-      break;
-
     case "WAITING_NAME":
-      aiChat.textContent = AI_PHRASES.WAITING_NAME;
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.WAITING_NAME, false);
+      gsap.to(internalNameInput, { opacity: 1, duration: 0.5, ease: "power2.out" });
       internalNameInput.value = "";
-      gsap.to(internalNameInput, { opacity: 1, duration: 0.5 });
       internalNameInput.style.pointerEvents = 'auto';
       internalNameInput.focus();
       break;
 
     case "COFFEE_SELECTION":
-      aiChat.textContent = AI_PHRASES.NAME_ENTERED(currentName);
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
-      gsap.to(coffeeGrid, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.NAME_ENTERED(currentName), true); // With typewriter
+      gsap.to(coffeeGrid, { opacity: 1, duration: 0.5, delay: 1.5, ease: "power2.out" }); // Delay for typewriter
       coffeeGrid.style.pointerEvents = 'auto';
       break;
 
     case "SIZE_SELECTION":
-      aiChat.textContent = AI_PHRASES.COFFEE_SELECTED(coffees[selectedCoffeeIndex].name);
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
-      gsap.to(coffeeGrid, { opacity: 1, duration: 0.5 }); // Keep coffee options visible
-      gsap.to(sizeOptions, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.COFFEE_SELECTED(coffees[selectedCoffeeIndex].name), false);
+      gsap.to(coffeeGrid, { opacity: 1, duration: 0.3, ease: "power2.out" }); // Keep coffee options visible
+      gsap.to(sizeOptions, { opacity: 1, duration: 0.5, delay: 0.2, ease: "power2.out" });
       sizeOptions.style.pointerEvents = 'auto';
       break;
 
     case "TEMP_SELECTION":
-      aiChat.textContent = AI_PHRASES.SIZE_SELECTED(sizes[selectedSizeIndex].label);
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
-      gsap.to(coffeeGrid, { opacity: 1, duration: 0.5 }); // Keep previous visible
-      gsap.to(sizeOptions, { opacity: 1, duration: 0.5 });
-      gsap.to(tempOptions, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.SIZE_SELECTED(sizes[selectedSizeIndex].label), false);
+      gsap.to([coffeeGrid, sizeOptions], { opacity: 1, duration: 0.3, ease: "power2.out" }); // Keep previous visible
+      gsap.to(tempOptions, { opacity: 1, duration: 0.5, delay: 0.2, ease: "power2.out" });
       tempOptions.style.pointerEvents = 'auto';
       break;
     
     case "READY_TO_BREW":
-      aiChat.textContent = AI_PHRASES.TEMP_SELECTED(selectedTemp === 'hot' ? 'Hot' : 'Cold');
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
-      gsap.to(brewButton, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.TEMP_SELECTED(selectedTemp === 'hot' ? 'Hot' : 'Cold'), false);
+      gsap.to([coffeeGrid, sizeOptions, tempOptions], { opacity: 1, duration: 0.3, ease: "power2.out" });
+      gsap.to(brewButton, { opacity: 1, duration: 0.5, delay: 0.2, ease: "power2.out" });
       brewButton.style.pointerEvents = 'auto';
-      // Keep previous selections visible
-      gsap.to([coffeeGrid, sizeOptions, tempOptions], { opacity: 1, duration: 0.5 });
       break;
 
     case "BREWING":
-      aiChat.textContent = AI_PHRASES.BREWING;
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
-      gsap.to([coffeeGrid, sizeOptions, tempOptions, brewButton], { opacity: 0, duration: 0.3 });
-      gsap.to(timerDisplay, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.BREWING, false);
+      gsap.to([coffeeGrid, sizeOptions, tempOptions, brewButton], { opacity: 0, duration: 0.3, ease: "power2.out" });
+      gsap.to(timerDisplay, { opacity: 1, duration: 0.5, ease: "power2.out" });
       break;
 
     case "SERVED":
-      aiChat.textContent = AI_PHRASES.SERVED(currentName);
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.SERVED(currentName), true); // Typewriter effect for serving message
       gsap.to(cup, { opacity: 1, duration: 0.8, ease: "back.out(1.2)" });
-      gsap.to(cupLabel, { opacity: 1, duration: 0.5 }); // Show name on cup
+      gsap.to(cupLabel, { opacity: 1, duration: 0.5, delay: 0.8, ease: "power2.out" }); // Show name on cup after cup appears
       break;
     
     case "PAYMENT_READY":
-      aiChat.textContent = AI_PHRASES.PAYMENT_READY;
-      gsap.to(aiChat, { opacity: 1, duration: 0.5 });
+      setAiChatText(AI_PHRASES.PAYMENT_READY, false);
       body.classList.add('kiss-cursor'); // Add custom cursor
       kissHotspot.style.pointerEvents = 'auto'; // Enable custom cursor area
       break;
   }
+}
+
+// === AI CHAT & TYPEWRITER ===
+function setAiChatText(text, useTypewriter) {
+  aiChat.textContent = ""; // Clear immediately
+  if (useTypewriter) {
+    aiChat.classList.add('typing');
+    let i = 0;
+    const speed = 50; // typing speed in ms
+    function typeWriter() {
+      if (i < text.length) {
+        aiChat.textContent += text.charAt(i);
+        i++;
+        setTimeout(typeWriter, speed);
+      } else {
+        aiChat.classList.remove('typing');
+      }
+    }
+    typeWriter();
+  } else {
+    aiChat.classList.remove('typing');
+    aiChat.textContent = text;
+  }
+  gsap.to(aiChat, { opacity: 1, duration: 0.5, ease: "power2.out" });
 }
 
 // === POPULATION FUNCTIONS ===
@@ -212,20 +223,21 @@ function populateTempOptions() {
 }
 
 // === SELECTION HANDLERS ===
-function handleNameInput() {
-  currentName = internalNameInput.value.trim();
-  cupLabel.textContent = currentName; // Update name on cup immediately
-
-  if (currentName.length > 0 && machineState === "WAITING_NAME") {
-    gsap.to(internalNameInput, { opacity: 0, duration: 0.3, onComplete: () => {
-      internalNameInput.style.pointerEvents = 'none';
+function handleNameInputKeydown(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault(); // Prevent new line in input
+    currentName = internalNameInput.value.trim();
+    if (currentName.length > 0) {
+      playSound("selectSound");
+      cupLabel.textContent = currentName; // Set name on cup
       updateMachineState("COFFEE_SELECTION");
-    }});
+    }
   }
 }
 
 function selectCoffee(index) {
   if (machineState !== "COFFEE_SELECTION") return;
+  playSound("selectSound");
   selectedCoffeeIndex = index;
   document.querySelectorAll('.coffee-option').forEach(opt => opt.classList.remove('selected'));
   document.querySelector(`.coffee-option[data-index="${index}"]`).classList.add('selected');
@@ -234,6 +246,7 @@ function selectCoffee(index) {
 
 function selectSize(index) {
   if (machineState !== "SIZE_SELECTION") return;
+  playSound("selectSound");
   selectedSizeIndex = index;
   document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected'));
   document.querySelector(`.size-btn[data-index="${index}"]`).classList.add('selected');
@@ -241,6 +254,8 @@ function selectSize(index) {
   // Update cup size visually
   const size = sizes[selectedSizeIndex];
   gsap.to(cup, { width: size.width, height: size.height, duration: 0.6, ease: "power2.out" });
+  gsap.to(cupLabel, { fontSize: size.width / 6 + 'px', duration: 0.6, ease: "power2.out" }); // Adjust label size
+  
   // Also adjust pour canvas to match cup size
   pourCanvas.width = size.width;
   pourCanvas.height = size.height;
@@ -251,6 +266,7 @@ function selectSize(index) {
 
 function selectTemp(temp) {
   if (machineState !== "TEMP_SELECTION") return;
+  playSound("selectSound");
   selectedTemp = temp;
   document.querySelectorAll('.temp-btn').forEach(btn => btn.classList.remove('selected'));
   document.querySelector(`.temp-btn[data-temp="${temp}"]`).classList.add('selected');
@@ -259,6 +275,7 @@ function selectTemp(temp) {
 
 function startBrew() {
   if (machineState !== "READY_TO_BREW") return;
+  playSound("selectSound"); // Sound for brew button click
 
   updateMachineState("BREWING");
 
@@ -298,16 +315,16 @@ function completeBrew() {
   ctx.fillRect(0, 0, pourCanvas.width, pourCanvas.height);
 
   // Animate pour
-  gsap.to(pourCanvas, { opacity: 1, duration: 0.8, onStart: () => playSound("pourSound") });
+  gsap.to(pourCanvas, { opacity: 1, duration: 0.8, ease: "power2.out", onStart: () => playSound("pourSound") });
 
   // Add drip effect / steam
   gsap.set([steamParticles, iceCube], { opacity: 0 }); // Reset first
   if (isIced) {
     createIceDrops();
-    gsap.to(iceCube, { opacity: 1, duration: 0.6 });
+    gsap.to(iceCube, { opacity: 1, duration: 0.6, ease: "power2.out" });
   } else {
     createSteamParticles(); // Regenerate steam particles
-    gsap.to(steamParticles, { opacity: 1, duration: 0.6 });
+    gsap.to(steamParticles, { opacity: 1, duration: 0.6, ease: "power2.out" });
   }
 
   updateMachineState("SERVED");
@@ -320,20 +337,20 @@ function completeBrew() {
 function handleKiss() {
   if (machineState !== "PAYMENT_READY") return;
 
-  body.classList.remove('kiss-cursor'); // Remove custom cursor on click
-  kissHotspot.style.pointerEvents = 'none'; // Disable custom cursor area
+  // Immediately disable interaction to prevent double-click issues
+  body.classList.remove('kiss-cursor');
+  kissHotspot.style.pointerEvents = 'none'; 
   
-  gsap.to(blush, { opacity: 1, duration: 0.5 });
-  gsap.to(thankYou, { opacity: 1, duration: 1, delay: 0.5 });
-  aiChat.textContent = AI_PHRASES.KISS_RECEIVED;
-  gsap.to(aiChat, { opacity: 1, duration: 0.5 });
+  gsap.to(blush, { opacity: 1, duration: 0.5, ease: "power2.out" });
+  gsap.to(thankYou, { opacity: 1, duration: 1, delay: 0.5, ease: "power2.out" });
+  setAiChatText(AI_PHRASES.KISS_RECEIVED, false); // No typewriter for short message
   
   increaseLove();
   launchConfetti();
 
   // Reset for next interaction
   setTimeout(() => {
-    gsap.to([blush, thankYou, cup, cupLabel, pourCanvas, steamParticles, iceCube], { opacity: 0, duration: 0.5 });
+    gsap.to([blush, thankYou, cup, cupLabel, pourCanvas, steamParticles, iceCube], { opacity: 0, duration: 0.5, ease: "power2.out" });
     // Reset selections for next round
     selectedCoffeeIndex = -1;
     selectedSizeIndex = -1;
@@ -427,14 +444,17 @@ function increaseLove() {
   if (loveLevel > 100) loveLevel = 100;
   loveFill.style.width = loveLevel + "%";
 
+  let phrase = "";
   if (loveLevel >= 50 && loveLevel < 80) {
-    aiChat.textContent = AI_PHRASES.LOVE_LEVEL_50;
+    phrase = AI_PHRASES.LOVE_LEVEL_50;
   } else if (loveLevel >= 80 && loveLevel < 100) {
-    aiChat.textContent = AI_PHRASES.LOVE_LEVEL_80;
+    phrase = AI_PHRASES.LOVE_LEVEL_80;
   } else if (loveLevel >= 100) {
-    aiChat.textContent = AI_PHRASES.LOVE_LEVEL_100;
+    phrase = AI_PHRASES.LOVE_LEVEL_100;
   }
-  gsap.to(aiChat, { opacity: 1, duration: 0.5 });
+  if (phrase) {
+    setAiChatText(phrase, false); // No typewriter for love level updates
+  }
 }
 
 // Initialize on window load
